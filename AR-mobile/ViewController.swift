@@ -7,6 +7,7 @@ class ViewController: UIViewController {
 
     @IBOutlet var sceneView: ARSCNView!
 
+    
     var display = UIImage()
     var photoNodes = [SCNNode]()
     
