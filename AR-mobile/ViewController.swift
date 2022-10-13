@@ -6,7 +6,7 @@ import ARKit
 class ViewController: UIViewController {
 
     @IBOutlet var sceneView: ARSCNView!
-
+    @IBOutlet weak var lightButton: UIBarButtonItem!
     
     var display = UIImage()
     var photoNodes = [SCNNode]()
@@ -14,7 +14,7 @@ class ViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        self.sceneView.debugOptions = [ARSCNDebugOptions.showFeaturePoints]
+        self.sceneView.debugOptions.insert(.showFeaturePoints) // [ARSCNDebugOptions.showFeaturePoints]
         
         // Set the view's delegate
         sceneView.delegate = self
@@ -40,6 +40,31 @@ class ViewController: UIViewController {
         sceneView.session.pause()
     }
     
+    @IBAction func lightSwich(_ sender: UIBarButtonItem) {
+        
+        // 押すとライトON/OFFが切り替わる
+        // さらにライトオン時とオフ時のアイコンを切り替える
+        if let avCaptureDevice = AVCaptureDevice.default(for: AVMediaType.video) {
+            if avCaptureDevice.hasTorch, avCaptureDevice.isTorchAvailable { // キャプチャデバイスにライトがあるか、　ライトが使用可能な状態か
+                do {
+                    try avCaptureDevice.lockForConfiguration() // デバイスにアクセスするときはこれする。
+                    
+                    if avCaptureDevice.isTorchActive {
+                        avCaptureDevice.torchMode = .off // 消灯。明るさレベルは 0.0 ~ 1.0
+                        lightButton.image = UIImage(systemName: "lightbulb.slash")
+                    } else {
+                        try avCaptureDevice.setTorchModeOn(level: 1.0) // 点灯。明るさレベルは 0.0 ~ 1.0
+                        lightButton.image = UIImage(systemName: "lightbulb.fill")
+                    }
+                    
+                } catch let error {
+                    print(error)
+                }
+                avCaptureDevice.unlockForConfiguration()
+            }
+        }
+    }
+    
     private func showUIImagePicker() {
         if UIImagePickerController.isSourceTypeAvailable(.photoLibrary) {
             let pickerView = UIImagePickerController()
@@ -59,28 +84,16 @@ class ViewController: UIViewController {
         let node = SCNNode()
         node.position = SCNVector3(
             x: location.worldTransform.columns.3.x,
-            y: location.worldTransform.columns.3.y + Float(plane.height / 2),
+            y: location.worldTransform.columns.3.y - Float(plane.height / 2),
             z: location.worldTransform.columns.3.z
         )
-        print(node.frame.height)
+//        node.eulerAngles.z = -.pi / 2
+
         node.geometry = plane // node を中心として cube を配置する
         sceneView.scene.rootNode.addChildNode(node)
         
         photoNodes.append(node)
     }
-    
-//    private func createPhotoNode(_ image: UIImage, position: SCNVector3) -> SCNNode {
-//        let photoNode = SCNNode()
-//        let scale: CGFloat = 0.3
-//        let geometry = SCNBox(width: image.size.width * scale / image.size.height,
-//                              height: scale,
-//                              length: 0.00000001,
-//                              chamferRadius: 0.0)
-//        geometry.firstMaterial?.diffuse.contents = image
-//        photoNode.geometry = geometry
-//        photoNode.position = position
-//        return photoNode
-//    }
 }
 
 //MARK: - Presenter
@@ -92,7 +105,6 @@ extension ViewController: UIImagePickerControllerDelegate, UINavigationControlle
         if let image = info[UIImagePickerController.InfoKey.originalImage] as? UIImage {
             display = image
             print("retrieve image info")
-            print(display)
         }
         picker.dismiss(animated: true, completion: nil)
         print("dismis display.")
@@ -112,9 +124,8 @@ extension ViewController: UIImagePickerControllerDelegate, UINavigationControlle
             let touchLocation = touch.location(in: sceneView) //デコード
             
             // sceneView と、touchLocationが平面かをテストし、結果を返す。
-            if let raycast = sceneView.raycastQuery(from: touchLocation, allowing: .estimatedPlane, alignment: .horizontal) {
+            if let raycast = sceneView.raycastQuery(from: touchLocation, allowing: .estimatedPlane, alignment: .any) {
                 if let raycastResult = sceneView.session.raycast(raycast).first {
-                    print(raycastResult)
                     setImageToScene(image: display, location: raycastResult)
                     print("size: \(display.size)")
                 }
@@ -123,6 +134,7 @@ extension ViewController: UIImagePickerControllerDelegate, UINavigationControlle
     }
     
     @IBAction func photoButtonTapped(_ sender: Any) {
+        
         showUIImagePicker()
     }
     

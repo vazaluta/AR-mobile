@@ -32,19 +32,27 @@
                     </view>
                     <toolbarItems/>
                     <navigationItem key="navigationItem" title="AR-mobile" id="uya-6k-0VZ">
-                        <barButtonItem key="leftBarButtonItem" image="folder.badge.plus" catalog="system" id="L0D-h0-NHZ">
+                        <barButtonItem key="leftBarButtonItem" title="File" image="folder.badge.plus" catalog="system" id="L0D-h0-NHZ">
                             <connections>
                                 <action selector="photoButtonTapped:" destination="BV1-FR-VrT" id="Xs1-lU-FUT"/>
                             </connections>
                         </barButtonItem>
-                        <barButtonItem key="rightBarButtonItem" image="trash" catalog="system" id="yGz-5S-slG">
-                            <connections>
-                                <action selector="trachButton:" destination="BV1-FR-VrT" id="qDH-Up-9j6"/>
-                            </connections>
-                        </barButtonItem>
+                        <rightBarButtonItems>
+                            <barButtonItem title="Trash" image="trash" catalog="system" id="yGz-5S-slG">
+                                <connections>
+                                    <action selector="trachButton:" destination="BV1-FR-VrT" id="qDH-Up-9j6"/>
+                                </connections>
+                            </barButtonItem>
+                            <barButtonItem title="Light" image="lightbulb.slash" catalog="system" id="K4n-pY-uUF">
+                                <connections>
+                                    <action selector="lightSwich:" destination="BV1-FR-VrT" id="aRp-p2-8hE"/>
+                                </connections>
+                            </barButtonItem>
+                        </rightBarButtonItems>
                     </navigationItem>
                     <simulatedToolbarMetrics key="simulatedBottomBarMetrics"/>
                     <connections>
+                        <outlet property="lightButton" destination="K4n-pY-uUF" id="SAl-cH-AW9"/>
                         <outlet property="sceneView" destination="BrB-h1-WRS" id="5nT-qQ-ynl"/>
                     </connections>
                 </viewController>
@@ -73,6 +81,7 @@
     </scenes>
     <resources>
         <image name="folder.badge.plus" catalog="system" width="128" height="92"/>
+        <image name="lightbulb.slash" catalog="system" width="96" height="128"/>
         <image name="trash" catalog="system" width="117" height="128"/>
         <systemColor name="systemBackgroundColor">
             <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
