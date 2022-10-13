@@ -40,31 +40,7 @@ class ViewController: UIViewController {
         sceneView.session.pause()
     }
     
-    @IBAction func lightSwich(_ sender: UIBarButtonItem) {
-        
-        // 押すとライトON/OFFが切り替わる
-        // さらにライトオン時とオフ時のアイコンを切り替える
-        if let avCaptureDevice = AVCaptureDevice.default(for: AVMediaType.video) {
-            if avCaptureDevice.hasTorch, avCaptureDevice.isTorchAvailable { // キャプチャデバイスにライトがあるか、　ライトが使用可能な状態か
-                do {
-                    try avCaptureDevice.lockForConfiguration() // デバイスにアクセスするときはこれする。
-                    
-                    if avCaptureDevice.isTorchActive {
-                        avCaptureDevice.torchMode = .off // 消灯。明るさレベルは 0.0 ~ 1.0
-                        lightButton.image = UIImage(systemName: "lightbulb.slash")
-                    } else {
-                        try avCaptureDevice.setTorchModeOn(level: 1.0) // 点灯。明るさレベルは 0.0 ~ 1.0
-                        lightButton.image = UIImage(systemName: "lightbulb.fill")
-                    }
-                    
-                } catch let error {
-                    print(error)
-                }
-                avCaptureDevice.unlockForConfiguration()
-            }
-        }
-    }
-    
+    //MARK: -選んだ写真をUIImagePickerControllerとして作り、ViewControllerにpresentする。
     private func showUIImagePicker() {
         if UIImagePickerController.isSourceTypeAvailable(.photoLibrary) {
             let pickerView = UIImagePickerController()
@@ -75,6 +51,7 @@ class ViewController: UIViewController {
         }
     }
     
+    //MARK: - 写真を設置
     private func setImageToScene(image: UIImage, location: ARRaycastResult) {
         
         let plane = SCNPlane(width: 0.2, height: 0.4)
@@ -97,10 +74,9 @@ class ViewController: UIViewController {
 }
 
 //MARK: - Presenter
-//MARK: - UIPickerControllerDelegate
-
 extension ViewController: UIImagePickerControllerDelegate, UINavigationControllerDelegate {
     
+    //MARK: - 画像選択処理
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
         if let image = info[UIImagePickerController.InfoKey.originalImage] as? UIImage {
             display = image
@@ -115,9 +91,7 @@ extension ViewController: UIImagePickerControllerDelegate, UINavigationControlle
         print("canceled")
     }
     
-    
-    //MARK: - touchesBegan
-    
+    //MARK: - タッチした時の処理
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         if let touch = touches.first {
 //            print(touch) //生データ
@@ -133,11 +107,36 @@ extension ViewController: UIImagePickerControllerDelegate, UINavigationControlle
         }
     }
     
+    //MARK: - 写真を選択
     @IBAction func photoButtonTapped(_ sender: Any) {
         
         showUIImagePicker()
     }
     
+    //MARK: - ライトのON/OFF
+    @IBAction func lightSwich(_ sender: UIBarButtonItem) {
+        
+        if let avCaptureDevice = AVCaptureDevice.default(for: AVMediaType.video) {
+            if avCaptureDevice.hasTorch, avCaptureDevice.isTorchAvailable { // キャプチャデバイスにライトがあるか、　ライトが使用可能な状態か
+                do {
+                    try avCaptureDevice.lockForConfiguration() // デバイスにアクセスするときはこれする。
+                    
+                    if avCaptureDevice.isTorchActive {
+                        avCaptureDevice.torchMode = .off // 消灯。明るさレベルは 0.0 ~ 1.0
+                        lightButton.image = UIImage(systemName: "lightbulb.slash")
+                    } else {
+                        try avCaptureDevice.setTorchModeOn(level: 1.0) // 点灯。明るさレベルは 0.0 ~ 1.0
+                        lightButton.image = UIImage(systemName: "lightbulb.fill")
+                    }
+                } catch let error {
+                    print(error)
+                }
+                avCaptureDevice.unlockForConfiguration()
+            }
+        }
+    }
+    
+    //MARK: - ノードの全削除
     @IBAction func trachButton(_ sender: UIBarButtonItem) {
 
         if !photoNodes.isEmpty {
@@ -147,9 +146,11 @@ extension ViewController: UIImagePickerControllerDelegate, UINavigationControlle
         }
         photoNodes = [SCNNode]()
     }
+    
+    
 }
 
-//MARK: - ARSCNViewDelegateMethods
+//MARK: - 平面をレンダリング
 extension ViewController :ARSCNViewDelegate {
     
     func renderer(_ renderer: SCNSceneRenderer, didAdd node: SCNNode, for anchor: ARAnchor) {
@@ -161,8 +162,6 @@ extension ViewController :ARSCNViewDelegate {
         node.addChildNode(planeNode)
 
     }
-    
-    //MARK: - Plane Rendering Methods
     
     func createPlane(withPlaneAnchor planeAnchor: ARPlaneAnchor) -> SCNNode {
         
