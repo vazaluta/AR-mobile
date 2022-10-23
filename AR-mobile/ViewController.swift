@@ -8,6 +8,11 @@ class ViewController: UIViewController {
     @IBOutlet var sceneView: ARSCNView!
     @IBOutlet weak var lightButton: UIBarButtonItem!
     
+    @IBOutlet weak var widthValue: UILabel!
+    @IBOutlet weak var heightValue: UILabel!
+    @IBOutlet weak var widthSlider: UISlider!
+    @IBOutlet weak var heightSlider: UISlider!
+    
     var display = UIImage()
     var photoNodes = [SCNNode]()
     var photoNodesBU = [SCNNode]()
@@ -47,6 +52,16 @@ class ViewController: UIViewController {
         timer.invalidate() // 回転を止める
     }
     
+    @IBAction func slideWidth(_ sender: UISlider) {
+        let width = String(format: "%.2f", sender.value)
+        widthValue.text = "\(width)m"
+    }
+    
+    @IBAction func slideHeight(_ sender: UISlider) {
+        let height = String(format: "%.2f", sender.value)
+        heightValue.text = "\(height)m"
+    }
+    
     //MARK: -選んだ写真をUIImagePickerControllerとして作り、ViewControllerにpresentする。
     private func showUIImagePicker() {
         if UIImagePickerController.isSourceTypeAvailable(.photoLibrary) {
@@ -65,12 +80,16 @@ class ViewController: UIViewController {
             // ２回目以降の設置は、前回作成のnode削除
             photoNodes.last?.removeFromParentNode()
             photoNodes[photoNodes.count - 2].removeFromParentNode()
-            photoNodes = photoNodesBU // buckUp
+            photoNodes = photoNodesBU // BuckUp
 
         }
         isFirst = false
 
-        let plane = SCNPlane(width: 0.2, height: 0.4) // setting plane node
+        
+        let width = widthSlider.value
+        let height = heightSlider.value
+        
+        let plane = planeSizing(width: width, height: height) // setting plane node
         let material = SCNMaterial()
         material.diffuse.contents = image
         plane.materials = [material]
@@ -82,25 +101,24 @@ class ViewController: UIViewController {
         )
         
         let node = SCNNode() // nodeを作成
-        node.position = nodePosition
-        node.geometry = plane // node を中心としてplaneを配置する
-        sceneView.scene.rootNode.addChildNode(node)
+        node.geometry = plane
         
         var node2 = SCNNode() // nodeのクローンを作成する
         node2 = node.clone()
+        
+        if let camera = self.sceneView.pointOfView {
+            node.eulerAngles.y = camera.eulerAngles.y // カメラのy軸のオイラー角と同じにする
+            node2.eulerAngles.y = camera.eulerAngles.y + .pi // node2は裏側としてレンダリングする
+        }
+        
+        node.position = nodePosition
         node2.position = nodePosition
+        
+        sceneView.scene.rootNode.addChildNode(node)
         sceneView.scene.rootNode.addChildNode(node2)
         
         photoNodes.append(node) // nodeをArrayに追加する
         photoNodes.append(node2)
-        
-        if let camera = self.sceneView.pointOfView {
-            
-            let cameraAngleY = camera.eulerAngles.y
-            node.eulerAngles.y = cameraAngleY // カメラのy軸のオイラー角と同じにする
-            node2.eulerAngles.y = cameraAngleY + .pi // node2は裏側としてレンダリングする
-            
-        }
     }
 }
 
@@ -108,11 +126,15 @@ class ViewController: UIViewController {
 //MARK: - Presenter
 extension ViewController: UIImagePickerControllerDelegate, UINavigationControllerDelegate {
     
+    func planeSizing(width: Float, height: Float) -> SCNPlane {
+        let plane = SCNPlane(width: CGFloat(width), height: CGFloat(height))
+        return plane
+    }
+    
     //MARK: - ノードの回転
     func nodeRotate() {
         
         timer = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { (Timer) in
-            
             for photo in self.photoNodes {
                 photo.eulerAngles.y += .pi/180
             }
@@ -123,6 +145,7 @@ extension ViewController: UIImagePickerControllerDelegate, UINavigationControlle
     //MARK: - 画像選択処理
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
         if let image = info[UIImagePickerController.InfoKey.originalImage] as? UIImage {
+            
             display = image
             isFirst = true // first flag
             photoNodesBU = photoNodes // Update to buckUp
@@ -133,14 +156,15 @@ extension ViewController: UIImagePickerControllerDelegate, UINavigationControlle
     
     //MARK: - 画像選択をキャンセル
     func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
+        
         picker.dismiss(animated: true, completion: nil)
     }
     
     //MARK: - タッチした時の処理
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+        
         if let touch = touches.first {
             let touchLocation = touch.location(in: sceneView) //デコード
-            
             // sceneView と、touchLocationが平面かをテストし、結果を返す。
             if let raycast = sceneView.raycastQuery(from: touchLocation, allowing: .estimatedPlane, alignment: .any) {
                 if let raycastResult = sceneView.session.raycast(raycast).first {
