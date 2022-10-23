@@ -10,11 +10,10 @@ class ViewController: UIViewController {
     
     var display = UIImage()
     var photoNodes = [SCNNode]()
-//    var reverseNodes = [SCNNode]()
+    var photoNodesBU = [SCNNode]()
     var isFirst = true
-//    var timer = Timer()
-//    var seconds: Float = 0.0
-    
+    var timer = Timer()
+
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -35,6 +34,8 @@ class ViewController: UIViewController {
 
         // Run the view's session
         sceneView.session.run(configuration)
+        
+        nodeRotate() // 回転させる
     }
     
     override func viewWillDisappear(_ animated: Bool) {
@@ -42,6 +43,8 @@ class ViewController: UIViewController {
         
         // Pause the view's session
         sceneView.session.pause()
+        
+        timer.invalidate() // 回転を止める
     }
     
     //MARK: -選んだ写真をUIImagePickerControllerとして作り、ViewControllerにpresentする。
@@ -58,35 +61,46 @@ class ViewController: UIViewController {
     //MARK: - 写真を設置
     private func setImageToScene(image: UIImage, location: ARRaycastResult) {
         if !isFirst {
+            
             // ２回目以降の設置は、前回作成のnode削除
             photoNodes.last?.removeFromParentNode()
+            photoNodes[photoNodes.count - 2].removeFromParentNode()
+            photoNodes = photoNodesBU // buckUp
+
         }
+        isFirst = false
+
         let plane = SCNPlane(width: 0.2, height: 0.4) // setting plane node
         let material = SCNMaterial()
         material.diffuse.contents = image
         plane.materials = [material]
-        
-        let node = SCNNode()
-        
+                
         let nodePosition = SCNVector3(
             x: location.worldTransform.columns.3.x,
             y: location.worldTransform.columns.3.y - Float(plane.height / 2),
             z: location.worldTransform.columns.3.z
         )
+        
+        let node = SCNNode() // nodeを作成
         node.position = nodePosition
-//        node.eulerAngles.y = .pi / 2
-        
-        node.geometry = plane // node を中心として cube を配置する
-        
+        node.geometry = plane // node を中心としてplaneを配置する
         sceneView.scene.rootNode.addChildNode(node)
         
-//        timer.invalidate() // タイマーストップ
-//        nodeRotate(node: node)
+        var node2 = SCNNode() // nodeのクローンを作成する
+        node2 = node.clone()
+        node2.position = nodePosition
+        sceneView.scene.rootNode.addChildNode(node2)
         
-        photoNodes.append(node)
+        photoNodes.append(node) // nodeをArrayに追加する
+        photoNodes.append(node2)
         
-        isFirst = false
-        
+        if let camera = self.sceneView.pointOfView {
+            
+            let cameraAngleY = camera.eulerAngles.y
+            node.eulerAngles.y = cameraAngleY // カメラのy軸のオイラー角と同じにする
+            node2.eulerAngles.y = cameraAngleY + .pi // node2は裏側としてレンダリングする
+            
+        }
     }
 }
 
@@ -94,26 +108,37 @@ class ViewController: UIViewController {
 //MARK: - Presenter
 extension ViewController: UIImagePickerControllerDelegate, UINavigationControllerDelegate {
     
+    //MARK: - ノードの回転
+    func nodeRotate() {
+        
+        timer = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { (Timer) in
+            
+            for photo in self.photoNodes {
+                photo.eulerAngles.y += .pi/180
+            }
+        }
+        
+    }
+    
     //MARK: - 画像選択処理
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
         if let image = info[UIImagePickerController.InfoKey.originalImage] as? UIImage {
             display = image
-            isFirst = true
-            print("retrieve image info")
+            isFirst = true // first flag
+            photoNodesBU = photoNodes // Update to buckUp
+            
         }
-        picker.dismiss(animated: true, completion: nil)
-        print("dismis display.")
+        picker.dismiss(animated: true, completion: nil) // UIimageへのダウンキャストが失敗した時
     }
     
+    //MARK: - 画像選択をキャンセル
     func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
         picker.dismiss(animated: true, completion: nil)
-        print("canceled")
     }
     
     //MARK: - タッチした時の処理
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         if let touch = touches.first {
-//            print(touch) //生データ
             let touchLocation = touch.location(in: sceneView) //デコード
             
             // sceneView と、touchLocationが平面かをテストし、結果を返す。
@@ -161,29 +186,12 @@ extension ViewController: UIImagePickerControllerDelegate, UINavigationControlle
             for photo in photoNodes {
                 photo.removeFromParentNode()
             }
-//            for reverse in reverseNodes {
-//                reverse.removeFromParentNode()
-//            }
         }
+        
         photoNodes = [SCNNode]()
-//        reverseNodes = [SCNNode]()
+        photoNodesBU = [SCNNode]()
     }
     
-    //MARK: - ノードの回転
-//    func nodeRotate(node: SCNNode) {
-//
-//        print(node)
-//
-//        timer = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { (Timer) in
-//            if self.seconds >= 360 {
-//                self.seconds = 0
-//            }
-//            self.seconds += 1
-//            node.eulerAngles.y = .pi / 180 * self.seconds
-//
-//            print(self.seconds)
-//        }
-//    }
 }
 
 //MARK: - 平面をレンダリング
