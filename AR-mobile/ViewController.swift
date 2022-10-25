@@ -2,7 +2,8 @@
 import UIKit
 import SceneKit
 import ARKit
-
+import CropViewController
+  
 class ViewController: UIViewController {
 
     @IBOutlet var sceneView: ARSCNView!
@@ -62,16 +63,7 @@ class ViewController: UIViewController {
         heightValue.text = "\(height)m"
     }
     
-    //MARK: -選んだ写真をUIImagePickerControllerとして作り、ViewControllerにpresentする。
-    private func showUIImagePicker() {
-        if UIImagePickerController.isSourceTypeAvailable(.photoLibrary) {
-            let pickerView = UIImagePickerController()
-            pickerView.sourceType = .photoLibrary
-            pickerView.delegate = self
-            pickerView.modalPresentationStyle = .overFullScreen
-            self.present(pickerView, animated: true, completion: nil)
-        }
-    }
+    
     
     //MARK: - 写真を設置
     private func setImageToScene(image: UIImage, location: ARRaycastResult) {
@@ -142,24 +134,6 @@ extension ViewController: UIImagePickerControllerDelegate, UINavigationControlle
         
     }
     
-    //MARK: - 画像選択処理
-    func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
-        if let image = info[UIImagePickerController.InfoKey.originalImage] as? UIImage {
-            
-            display = image
-            isFirst = true // first flag
-            photoNodesBU = photoNodes // Update to buckUp
-            
-        }
-        picker.dismiss(animated: true, completion: nil) // UIimageへのダウンキャストが失敗した時
-    }
-    
-    //MARK: - 画像選択をキャンセル
-    func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
-        
-        picker.dismiss(animated: true, completion: nil)
-    }
-    
     //MARK: - タッチした時の処理
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         
@@ -168,6 +142,7 @@ extension ViewController: UIImagePickerControllerDelegate, UINavigationControlle
             // sceneView と、touchLocationが平面かをテストし、結果を返す。
             if let raycast = sceneView.raycastQuery(from: touchLocation, allowing: .estimatedPlane, alignment: .any) {
                 if let raycastResult = sceneView.session.raycast(raycast).first {
+                    // トリミングした画像とタッチした座標をもとに、nodeをsettingする。
                     setImageToScene(image: display, location: raycastResult)
                     print("size: \(display.size)")
                 }
@@ -179,6 +154,35 @@ extension ViewController: UIImagePickerControllerDelegate, UINavigationControlle
     @IBAction func photoButtonTapped(_ sender: Any) {
         showUIImagePicker()
     }
+    
+    //MARK: -選んだ写真をUIImagePickerControllerとして作り、ViewControllerにpresentする。
+    private func showUIImagePicker() {
+        if UIImagePickerController.isSourceTypeAvailable(.photoLibrary) {
+            let pickerView = UIImagePickerController()
+            pickerView.sourceType = .photoLibrary
+            pickerView.delegate = self
+            pickerView.modalPresentationStyle = .overFullScreen
+            self.present(pickerView, animated: true, completion: nil)
+        }
+    }
+    
+    //MARK: - 画像選択をキャンセル
+    func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
+        
+        picker.dismiss(animated: true, completion: nil)
+    }
+    
+    //MARK: - 画像選択処理
+    func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
+        if let image = info[UIImagePickerController.InfoKey.originalImage] as? UIImage {
+            cropUIImagePicker(pickerImage: image, with: picker) //　トリミングする
+            
+            isFirst = true // first flag
+            photoNodesBU = photoNodes // Update to buckUp
+        }
+        picker.dismiss(animated: true, completion: nil) // UIimageへのダウンキャストが失敗した時
+    }
+    
     
     //MARK: - ライトのON/OFF
     @IBAction func lightSwich(_ sender: UIBarButtonItem) {
@@ -217,6 +221,60 @@ extension ViewController: UIImagePickerControllerDelegate, UINavigationControlle
     }
     
 }
+
+//MARK: - cropViewControllerDelegate
+extension ViewController: CropViewControllerDelegate {
+    //MARK: - 選んだ写真をトリミング
+    private func cropUIImagePicker(pickerImage: UIImage, with picker: UIImagePickerController) {
+        //CropViewControllerを初期化する。pickerImage(処理する画像)を指定する。
+        let cropController = CropViewController(croppingStyle: .default, image: pickerImage)
+        
+        cropController.delegate = self
+        
+        //AspectRatioのサイズをimageViewのサイズに合わせる。
+        cropController.customAspectRatio = sceneView.frame.size
+        
+        //今回は使わない、余計なボタン等を非表示にする。
+//        cropController.aspectRatioPickerButtonHidden = true
+//        cropController.resetAspectRatioEnabled = false
+//        cropController.rotateButtonsHidden = true
+        
+        //cropBoxのサイズを固定する。
+//        cropController.cropView.cropBoxResizeEnabled = false
+        
+        //pickerを閉じたら、cropControllerを表示する。
+        picker.dismiss(animated: true) {
+            
+            self.present(cropController, animated: true, completion: nil)
+        }
+        
+    }
+    
+    public func cropViewController(_ cropViewController: CropViewController, didCropToImage image: UIImage, withRect cropRect: CGRect, angle: Int) {
+        //加工した画像が取得できる
+        display = image
+        cropViewController.dismiss(animated: true, completion: nil)
+    }
+    
+    public func cropViewController(_ cropViewController: CropViewController, didFinishCancelled cancelled: Bool) {
+        // キャンセル時
+        cropViewController.dismiss(animated: true, completion: nil)
+    }
+}
+
+//func cropViewController(_ cropViewController: CropViewController, didCropToCircularImage image: UIImage, withRect cropRect: CGRect, angle: Int) {
+//    //トリミング編集が終えたら、呼び出される。
+//    updateImageViewWithImage(image, fromCropViewController: cropViewController)
+//    print(image)
+//}
+//
+//func updateImageViewWithImage(_ image: UIImage, fromCropViewController cropViewController: CropViewController) {
+//    //トリミングした画像をsceneViewのimageに代入する。
+//    display = image
+//    print(image)
+//
+//    cropViewController.dismiss(animated: true, completion: nil)
+//}
 
 //MARK: - 平面をレンダリング
 extension ViewController :ARSCNViewDelegate {

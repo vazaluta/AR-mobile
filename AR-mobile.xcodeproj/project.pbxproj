@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		1C678BDAD13D8A733744E28F /* Pods_AR_mobile.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 053ABF65C4A183D4518EEB78 /* Pods_AR_mobile.framework */; };
 		F7708BDF28F8567F0017E2C8 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7708BDE28F8567F0017E2C8 /* ViewController.swift */; };
 		F796C47E28EDDB1800A33470 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F796C47D28EDDB1800A33470 /* AppDelegate.swift */; };
 		F796C48028EDDB1800A33470 /* art.scnassets in Resources */ = {isa = PBXBuildFile; fileRef = F796C47F28EDDB1800A33470 /* art.scnassets */; };
@@ -16,6 +17,9 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		053ABF65C4A183D4518EEB78 /* Pods_AR_mobile.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_AR_mobile.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		119483FB367BE09B27CC0A51 /* Pods-AR-mobile.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-AR-mobile.release.xcconfig"; path = "Target Support Files/Pods-AR-mobile/Pods-AR-mobile.release.xcconfig"; sourceTree = "<group>"; };
+		751533815D3FB7BC74D6C3BF /* Pods-AR-mobile.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-AR-mobile.debug.xcconfig"; path = "Target Support Files/Pods-AR-mobile/Pods-AR-mobile.debug.xcconfig"; sourceTree = "<group>"; };
 		F7708BDE28F8567F0017E2C8 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
 		F796C47A28EDDB1800A33470 /* AR-mobile.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "AR-mobile.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		F796C47D28EDDB1800A33470 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -30,17 +34,38 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1C678BDAD13D8A733744E28F /* Pods_AR_mobile.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		120FCB53E3667D8E7B304795 /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				751533815D3FB7BC74D6C3BF /* Pods-AR-mobile.debug.xcconfig */,
+				119483FB367BE09B27CC0A51 /* Pods-AR-mobile.release.xcconfig */,
+			);
+			name = Pods;
+			path = Pods;
+			sourceTree = "<group>";
+		};
+		686513589B644636145FDBA9 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				053ABF65C4A183D4518EEB78 /* Pods_AR_mobile.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		F796C47128EDDB1700A33470 = {
 			isa = PBXGroup;
 			children = (
 				F796C47C28EDDB1800A33470 /* AR-mobile */,
 				F796C47B28EDDB1800A33470 /* Products */,
+				120FCB53E3667D8E7B304795 /* Pods */,
+				686513589B644636145FDBA9 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -72,9 +97,11 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = F796C48D28EDDB1A00A33470 /* Build configuration list for PBXNativeTarget "AR-mobile" */;
 			buildPhases = (
+				8E3782A50F54E3B73E7D7F93 /* [CP] Check Pods Manifest.lock */,
 				F796C47628EDDB1800A33470 /* Sources */,
 				F796C47728EDDB1800A33470 /* Frameworks */,
 				F796C47828EDDB1800A33470 /* Resources */,
+				27FCF4FF62879AE0390388BE /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -131,6 +158,48 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		27FCF4FF62879AE0390388BE /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-AR-mobile/Pods-AR-mobile-frameworks-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-AR-mobile/Pods-AR-mobile-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-AR-mobile/Pods-AR-mobile-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		8E3782A50F54E3B73E7D7F93 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-AR-mobile-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		F796C47628EDDB1800A33470 /* Sources */ = {
@@ -280,6 +349,7 @@
 		};
 		F796C48E28EDDB1A00A33470 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 751533815D3FB7BC74D6C3BF /* Pods-AR-mobile.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
@@ -311,6 +381,7 @@
 		};
 		F796C48F28EDDB1A00A33470 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 119483FB367BE09B27CC0A51 /* Pods-AR-mobile.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
