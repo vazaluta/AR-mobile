@@ -39,7 +39,7 @@ class ViewController: UIViewController {
         // Create a session configuration
         let configuration = ARWorldTrackingConfiguration()
         
-        configuration.planeDetection = [.horizontal]
+        configuration.planeDetection = [.horizontal, .vertical]
 
         // Run the view's session
         sceneView.session.run(configuration)
@@ -59,24 +59,24 @@ class ViewController: UIViewController {
     //MARK: - Arrow Buttonでnodeを移動する
     
     @IBAction func moveToUp(_ sender: UIButton) {
-        zCounter += -1
+        zCounter += 5
         setImageToScene(location: touchResult!)
 
     }
     
     @IBAction func moveToDown(_ sender: UIButton) {
-        zCounter += 1
+        zCounter += -5
         setImageToScene(location: touchResult!)
 
     }
     
     @IBAction func moveToLeft(_ sender: UIButton) {
-        xCounter += -1
+        xCounter += 5
         setImageToScene(location: touchResult!)
 
     }
     @IBAction func moveToRight(_ sender: UIButton) {
-        xCounter += 1
+        xCounter += -5
         setImageToScene(location: touchResult!)
         
     }
