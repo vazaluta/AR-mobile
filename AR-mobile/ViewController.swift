@@ -4,7 +4,7 @@ import SceneKit
 import ARKit
 import CropViewController
   
-class ViewController: UIViewController {
+class ViewController: UIViewController, ARSCNViewDelegate {
 
     @IBOutlet var sceneView: ARSCNView!
     @IBOutlet weak var lightButton: UIBarButtonItem!
@@ -17,17 +17,19 @@ class ViewController: UIViewController {
     var photoNodes = [SCNNode]()
     var photoNodesBU = [SCNNode]()
     var timer = Timer()
-    var touchResult: ARRaycastResult? = nil
     var isFirst = true
     var xCounter: Float = 0.0
+    var yCounter: Float = 0.0
     var zCounter: Float = 0.0
+    var rotateNow = true
+    var nodePosition = SCNVector3()
+    var node = SCNNode()
+    var node2 = SCNNode()
     
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-        self.sceneView.debugOptions.insert(.showFeaturePoints) // [ARSCNDebugOptions.showFeaturePoints]
-        
+                
         // Set the view's delegate
         sceneView.delegate = self
         
@@ -39,8 +41,6 @@ class ViewController: UIViewController {
         // Create a session configuration
         let configuration = ARWorldTrackingConfiguration()
         
-        configuration.planeDetection = [.horizontal, .vertical]
-
         // Run the view's session
         sceneView.session.run(configuration)
         
@@ -56,32 +56,74 @@ class ViewController: UIViewController {
         timer.invalidate() // 回転を止める
     }
     
-    //MARK: - Arrow Buttonでnodeを移動する
+    //MARK: - nodeを移動する
     
     @IBAction func moveToUp(_ sender: UIButton) {
-        zCounter += 5
-        setImageToScene(location: touchResult!)
-
+        yCounter += +1
+        setImageToScene()
     }
     
     @IBAction func moveToDown(_ sender: UIButton) {
-        zCounter += -5
-        setImageToScene(location: touchResult!)
+        yCounter += -1
+        setImageToScene()
+    }
+    
+    @IBAction func moveToForward(_ sender: UIButton) {
+        zCounter += -1
+        setImageToScene()
 
+    }
+        
+    @IBAction func moveToBack(_ sender: UIButton) {
+        zCounter += +1
+        setImageToScene()
     }
     
     @IBAction func moveToLeft(_ sender: UIButton) {
-        xCounter += 5
-        setImageToScene(location: touchResult!)
+        xCounter += -1
+        setImageToScene()
 
     }
     @IBAction func moveToRight(_ sender: UIButton) {
-        xCounter += -5
-        setImageToScene(location: touchResult!)
+        xCounter += +1
+        setImageToScene()
         
     }
     
-    //MARK: - slidebar でnodeの大きさを調整する
+    //MARK: - fuction Buttonで機能を割り当て
+    //MARK: - <#section heading#>
+    @IBAction func triangleButton(_ sender: UIButton) {
+        
+            
+    }
+    
+    //MARK: - ノードの発生
+    @IBAction func circleButton(_ sender: UIButton) {
+        createImage()
+        setImageToScene()
+        xCounter = 0
+        yCounter = 0
+        zCounter = 0
+        
+    }
+    
+    //MARK: - 回転制御
+    @IBAction func xmarkButton(_ sender: UIButton) {
+        
+        if rotateNow {
+            timer.invalidate()
+        } else {
+            nodeRotate()
+        }
+        rotateNow = !rotateNow
+    }
+    
+    
+    @IBAction func squareButton(_ sender: UIButton) {
+        
+    }
+    
+    //MARK: - slidebar でnodeの大きさ調整
     @IBAction func slideWidth(_ sender: UISlider) {
         let width = sender.value * 100
         let widthString = String(format: "%.1f", width)
@@ -93,18 +135,10 @@ class ViewController: UIViewController {
         heightValue.text = "\(heightString)cm"
     }
     
-    //MARK: - 写真を設置
-    private func setImageToScene(location: ARRaycastResult) {
-        if !isFirst {
-            
-            // ２回目以降の設置は、前回作成のnode削除
-            photoNodes.last?.removeFromParentNode()
-            photoNodes[photoNodes.count - 2].removeFromParentNode()
-            photoNodes = photoNodesBU // BuckUp
-
-        }
-        isFirst = false
-
+    
+    //MARK: - ノードを作成
+    func createImage() {
+        
         // create plane geometry
         let width = widthSlider.value
         let height = heightSlider.value
@@ -116,25 +150,42 @@ class ViewController: UIViewController {
         plane.materials = [material]
         
         // create node and node2
-        let node = SCNNode()
         node.geometry = plane
-        var node2 = SCNNode()
         node2 = node.clone()
         
-        //　初期の平面の向きがカメラに向くように設定
+        //　初期のplaneNodeの向きがカメラに向くように設定
         if let camera = self.sceneView.pointOfView {
             node.eulerAngles.y = camera.eulerAngles.y // カメラのy軸のオイラー角と同じにする
             node2.eulerAngles.y = camera.eulerAngles.y + .pi // node2は裏側としてレンダリングする
+            
+            // set position
+            let position = SCNVector3(x: 0, y: 1, z: -2)
+            nodePosition = camera.convertPosition(position, to: nil)
+            
         }
         
-        // set position
-        let nodePosition = SCNVector3(
-            x: location.worldTransform.columns.3.x + xCounter * 0.01,
-            y: location.worldTransform.columns.3.y - Float(plane.height / 2),
-            z: location.worldTransform.columns.3.z + zCounter * 0.01
+    }
+    
+    //MARK: - 写真を設置
+    private func setImageToScene() {
+        if !isFirst {
+            
+            // ２回目以降の設置は、前回作成のnode削除
+            photoNodes.last?.removeFromParentNode()
+            photoNodes[photoNodes.count - 2].removeFromParentNode()
+            photoNodes = photoNodesBU // BuckUp
+
+        }
+        isFirst = false
+
+        let position = SCNVector3(
+            x: nodePosition.x + xCounter * 0.05,
+            y: nodePosition.y + yCounter * 0.05,
+            z: nodePosition.z + zCounter * 0.05
         )
-        node.position = nodePosition
-        node2.position = nodePosition
+        
+        node.position = position
+        node2.position = position
         
         // render sceneView
         sceneView.scene.rootNode.addChildNode(node)
@@ -158,25 +209,6 @@ extension ViewController: UIImagePickerControllerDelegate, UINavigationControlle
             }
         }
         
-    }
-    
-    //MARK: - タッチした時の処理
-    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-        
-        xCounter = 0.0
-        zCounter = 0.0
-        
-        if let touch = touches.first {
-            let touchLocation = touch.location(in: sceneView) //デコード
-            // sceneView と、touchLocationが平面かをテストし、結果を返す。
-            if let raycast = sceneView.raycastQuery(from: touchLocation, allowing: .estimatedPlane, alignment: .any) {
-                if let raycastResult = sceneView.session.raycast(raycast).first {
-                    setImageToScene(location: raycastResult) // render image
-                    
-                    touchResult = raycastResult // 位置調整用にタッチ座標を使用するためグローバル変数へ渡す
-                }
-            }
-        }
     }
     
     //MARK: - 写真を選択
@@ -208,36 +240,12 @@ extension ViewController: UIImagePickerControllerDelegate, UINavigationControlle
             
             isFirst = true // first flag
             xCounter = 0.0 // reset moving distance at x-axis
+            yCounter = 0.0 // reset moving distance at y-axis
             zCounter = 0.0 // reset moving distance at z-axis
             
             photoNodesBU = photoNodes // Update to buckUp
         }
         picker.dismiss(animated: true, completion: nil) // UIimageへのダウンキャストが失敗した時
-    }
-    
-    
-    //MARK: - ライトのON/OFF
-    @IBAction func lightSwich(_ sender: UIBarButtonItem) {
-        
-        if let avCaptureDevice = AVCaptureDevice.default(for: AVMediaType.video) {
-            // キャプチャデバイスにライトがあるか、ライトが使用可能な状態か
-            if avCaptureDevice.hasTorch, avCaptureDevice.isTorchAvailable {
-                do {
-                    try avCaptureDevice.lockForConfiguration() // access your device
-                    
-                    if avCaptureDevice.isTorchActive {
-                        avCaptureDevice.torchMode = .off // lights out.
-                        lightButton.image = UIImage(systemName: "lightbulb.slash") // set button image
-                    } else {
-                        try avCaptureDevice.setTorchModeOn(level: 1.0) // lighting.brightness level 0.0 ~ 1.0
-                        lightButton.image = UIImage(systemName: "lightbulb.fill") // set button image
-                    }
-                } catch let error {
-                    print(error)
-                }
-                avCaptureDevice.unlockForConfiguration() // release control
-            }
-        }
     }
     
     //MARK: - ノードの全削除
@@ -253,6 +261,7 @@ extension ViewController: UIImagePickerControllerDelegate, UINavigationControlle
         photoNodesBU = [SCNNode]()
         isFirst = true
         xCounter = 0.0
+        yCounter = 0.0
         zCounter = 0.0
     }
     
@@ -291,22 +300,4 @@ extension ViewController: CropViewControllerDelegate {
         
         cropViewController.dismiss(animated: true, completion: nil)
     }
-}
-
-
-//MARK: - 平面をレンダリング
-extension ViewController :ARSCNViewDelegate {
-    
-    internal func renderer(_ renderer: SCNSceneRenderer, didAdd node: SCNNode, for anchor: ARAnchor) {
-        guard let planeAnchor = anchor as? ARPlaneAnchor else { fatalError("Can't create plane geometry") }
-        
-        let planeGeometry = SCNPlane(width: CGFloat(planeAnchor.extent.x), height: CGFloat(planeAnchor.extent.z))
-        planeGeometry.firstMaterial?.diffuse.contents = UIColor.blue.withAlphaComponent(0.6)
-        let planeNode = SCNNode(geometry: planeGeometry)
-
-        planeNode.simdPosition = planeAnchor.center
-        planeNode.eulerAngles.x = -.pi / 2
-        node.addChildNode(planeNode)
-    }
-
 }
