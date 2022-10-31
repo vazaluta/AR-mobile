@@ -22,10 +22,10 @@ class ViewController: UIViewController, ARSCNViewDelegate {
     var yCounter: Float = 0.0
     var zCounter: Float = 0.0
     var rotateNow = true
-    var nodePosition = SCNVector3()
+    var position = SCNVector3()
     var node = SCNNode()
     var node2 = SCNNode()
-    
+    var number: Float = 1.0
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -59,42 +59,46 @@ class ViewController: UIViewController, ARSCNViewDelegate {
     //MARK: - nodeを移動する
     
     @IBAction func moveToUp(_ sender: UIButton) {
-        yCounter += +1
+        
+        position = SCNVector3(position.x, position.y + 0.05 * number, position.z)
         setImageToScene()
     }
     
     @IBAction func moveToDown(_ sender: UIButton) {
-        yCounter += -1
+        
+        position = SCNVector3(position.x, position.y - 0.05 * number, position.z)
         setImageToScene()
     }
     
     @IBAction func moveToForward(_ sender: UIButton) {
-        zCounter += -1
+        
+        position = SCNVector3(position.x, position.y, position.z - 0.05)
         setImageToScene()
-
     }
         
     @IBAction func moveToBack(_ sender: UIButton) {
-        zCounter += +1
+        
+        position = SCNVector3(position.x, position.y, position.z + 0.05)
         setImageToScene()
     }
     
     @IBAction func moveToLeft(_ sender: UIButton) {
-        xCounter += -1
+        
+        position = SCNVector3(position.x - 0.05, position.y, position.z)
         setImageToScene()
 
     }
     @IBAction func moveToRight(_ sender: UIButton) {
-        xCounter += +1
-        setImageToScene()
         
+        position = SCNVector3(position.x + 0.05, position.y, position.z)
+        setImageToScene()
     }
     
     //MARK: - fuction Buttonで機能を割り当て
-    //MARK: - <#section heading#>
+    //MARK: - 移動倍率制御
     @IBAction func triangleButton(_ sender: UIButton) {
-        
-            
+        number = number == 1.0 ? 2.0 : 1.0
+        print(number)
     }
     
     //MARK: - ノードの発生
@@ -159,8 +163,8 @@ class ViewController: UIViewController, ARSCNViewDelegate {
             node2.eulerAngles.y = camera.eulerAngles.y + .pi // node2は裏側としてレンダリングする
             
             // set position
-            let position = SCNVector3(x: 0, y: 1, z: -2)
-            nodePosition = camera.convertPosition(position, to: nil)
+            let offset = SCNVector3(x: 0, y: 1, z: -2)
+            position = camera.convertPosition(offset, to: nil)
             
         }
         
@@ -178,12 +182,7 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         }
         isFirst = false
 
-        let position = SCNVector3(
-            x: nodePosition.x + xCounter * 0.05,
-            y: nodePosition.y + yCounter * 0.05,
-            z: nodePosition.z + zCounter * 0.05
-        )
-        
+        print("position is \(position)")
         node.position = position
         node2.position = position
         
