@@ -7,20 +7,17 @@ import CropViewController
 class ViewController: UIViewController, ARSCNViewDelegate {
 
     @IBOutlet var sceneView: ARSCNView!
-    @IBOutlet weak var lightButton: UIBarButtonItem!
     @IBOutlet weak var widthValue: UILabel!
     @IBOutlet weak var heightValue: UILabel!
     @IBOutlet weak var widthSlider: UISlider!
     @IBOutlet weak var heightSlider: UISlider!
+    @IBOutlet weak var multipleNumber: UILabel!
     
     var display = UIImage()
     var photoNodes = [SCNNode]()
     var photoNodesBU = [SCNNode]()
     var timer = Timer()
     var isFirst = true
-    var xCounter: Float = 0.0
-    var yCounter: Float = 0.0
-    var zCounter: Float = 0.0
     var rotateNow = true
     var position = SCNVector3()
     var node = SCNNode()
@@ -55,9 +52,9 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         
         timer.invalidate() // 回転を止める
     }
+
     
     //MARK: - nodeを移動する
-    
     @IBAction func moveToUp(_ sender: UIButton) {
         
         position = SCNVector3(position.x, position.y + 0.05 * number, position.z)
@@ -72,46 +69,45 @@ class ViewController: UIViewController, ARSCNViewDelegate {
     
     @IBAction func moveToForward(_ sender: UIButton) {
         
-        position = SCNVector3(position.x, position.y, position.z - 0.05)
+        position = SCNVector3(position.x, position.y, position.z - 0.05 * number)
         setImageToScene()
     }
         
     @IBAction func moveToBack(_ sender: UIButton) {
         
-        position = SCNVector3(position.x, position.y, position.z + 0.05)
+        position = SCNVector3(position.x, position.y, position.z + 0.05 * number)
         setImageToScene()
     }
     
     @IBAction func moveToLeft(_ sender: UIButton) {
         
-        position = SCNVector3(position.x - 0.05, position.y, position.z)
+        position = SCNVector3(position.x - 0.05 * number, position.y, position.z)
         setImageToScene()
 
     }
     @IBAction func moveToRight(_ sender: UIButton) {
         
-        position = SCNVector3(position.x + 0.05, position.y, position.z)
+        position = SCNVector3(position.x + 0.05 * number, position.y, position.z)
         setImageToScene()
     }
     
     //MARK: - fuction Buttonで機能を割り当て
-    //MARK: - 移動倍率制御
+    //MARK: - △ボタン 移動倍率制御
     @IBAction func triangleButton(_ sender: UIButton) {
-        number = number == 1.0 ? 2.0 : 1.0
-        print(number)
+        if number == 1.0        { number = 2.0 }
+        else if number == 2.0   { number = 3.0 }
+        else                    { number = 1.0 }
+        multipleNumber.text = "x\(Int(number))"
     }
     
-    //MARK: - ノードの発生
+    //MARK: - ○ボタン ノードの発生
     @IBAction func circleButton(_ sender: UIButton) {
         createImage()
         setImageToScene()
-        xCounter = 0
-        yCounter = 0
-        zCounter = 0
         
     }
     
-    //MARK: - 回転制御
+    //MARK: - xボタン 回転制御
     @IBAction func xmarkButton(_ sender: UIButton) {
         
         if rotateNow {
@@ -122,7 +118,7 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         rotateNow = !rotateNow
     }
     
-    
+    //MARK: - □ボタン
     @IBAction func squareButton(_ sender: UIButton) {
         
     }
@@ -238,9 +234,6 @@ extension ViewController: UIImagePickerControllerDelegate, UINavigationControlle
             cropUIImagePicker(pickerImage: image, with: picker) // trimming image
             
             isFirst = true // first flag
-            xCounter = 0.0 // reset moving distance at x-axis
-            yCounter = 0.0 // reset moving distance at y-axis
-            zCounter = 0.0 // reset moving distance at z-axis
             
             photoNodesBU = photoNodes // Update to buckUp
         }
@@ -259,9 +252,6 @@ extension ViewController: UIImagePickerControllerDelegate, UINavigationControlle
         photoNodes = [SCNNode]()
         photoNodesBU = [SCNNode]()
         isFirst = true
-        xCounter = 0.0
-        yCounter = 0.0
-        zCounter = 0.0
     }
     
 }
