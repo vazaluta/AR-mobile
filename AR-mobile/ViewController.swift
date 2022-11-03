@@ -92,47 +92,56 @@ class ViewController: UIViewController, ARSCNViewDelegate {
     }
     
     //MARK: - fuction Buttonで機能を割り当て
-    //MARK: - △ボタン 移動倍率制御
+    //MARK: - △ボタン 表示/非表示切り替え
     @IBAction func triangleButton(_ sender: UIButton) {
-        if number == 1.0        { number = 2.0 }
-        else if number == 2.0   { number = 3.0 }
-        else                    { number = 1.0 }
-        multipleNumber.text = "x\(Int(number))"
+        
+        widthValue.isHidden.toggle()
+        widthSlider.isHidden.toggle()
+        heightValue.isHidden.toggle()
+        heightSlider.isHidden.toggle()
+        
     }
     
     //MARK: - ○ボタン ノードの発生
     @IBAction func circleButton(_ sender: UIButton) {
+        
         createImage()
         setImageToScene()
         
     }
     
-    //MARK: - xボタン 回転制御
+    //MARK: - xボタン 移動倍率制御
     @IBAction func xmarkButton(_ sender: UIButton) {
+        
+        if number == 1.0        { number = 2.0 }
+        else if number == 2.0   { number = 3.0 }
+        else                    { number = 1.0 }
+        multipleNumber.text = "x\(Int(number))"
+        
+    }
+    
+    //MARK: - □ボタン 回転制御
+    @IBAction func squareButton(_ sender: UIButton) {
         
         if rotateNow {
             timer.invalidate()
         } else {
             nodeRotate()
         }
-        rotateNow = !rotateNow
-    }
-    
-    //MARK: - □ボタン
-    @IBAction func squareButton(_ sender: UIButton) {
-        
+        rotateNow.toggle()
+
     }
     
     //MARK: - slidebar でnodeの大きさ調整
     @IBAction func slideWidth(_ sender: UISlider) {
         let width = sender.value * 100
         let widthString = String(format: "%.1f", width)
-        widthValue.text = "\(widthString)cm"
+        widthValue.text = "Width: \(widthString)cm"
     }
     @IBAction func slideHeight(_ sender: UISlider) {
         let height = sender.value * 100
         let heightString = String(format: "%.1f", height)
-        heightValue.text = "\(heightString)cm"
+        heightValue.text = "Height: \(heightString)cm"
     }
     
     
@@ -159,7 +168,7 @@ class ViewController: UIViewController, ARSCNViewDelegate {
             node2.eulerAngles.y = camera.eulerAngles.y + .pi // node2は裏側としてレンダリングする
             
             // set position
-            let offset = SCNVector3(x: 0, y: 1, z: -2)
+            let offset = SCNVector3(x: 0, y: 0.5, z: -2)
             position = camera.convertPosition(offset, to: nil)
             
         }
@@ -195,6 +204,11 @@ class ViewController: UIViewController, ARSCNViewDelegate {
 
 //MARK: - Presenter
 extension ViewController: UIImagePickerControllerDelegate, UINavigationControllerDelegate {
+    
+    //MARK: - ノードの移動
+    func nodeMove() {
+        
+    }
     
     //MARK: - ノードの回転
     func nodeRotate() {
