@@ -16,12 +16,11 @@ class ViewController: UIViewController, ARSCNViewDelegate {
     var display = UIImage()
     var photoNodes = [SCNNode]()
     var photoNodesBU = [SCNNode]()
+    var axesNodes = [SCNNode]()
     var timer = Timer()
     var isFirst = true
     var rotateNow = true
     var position = SCNVector3()
-    var node = SCNNode()
-    var node2 = SCNNode()
     var number: Float = 1.0
 
     override func viewDidLoad() {
@@ -37,16 +36,19 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         
         // Create a session configuration
         let configuration = ARWorldTrackingConfiguration()
+        configuration.worldAlignment = .gravity
         
         // Run the view's session
         sceneView.session.run(configuration)
         
         nodeRotate() // 回転させる
+        
     }
     
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         
+        print("disappear")
         // Pause the view's session
         sceneView.session.pause()
         
@@ -95,9 +97,7 @@ class ViewController: UIViewController, ARSCNViewDelegate {
     //MARK: - △ボタン 表示/非表示切り替え
     @IBAction func triangleButton(_ sender: UIButton) {
         
-        widthValue.isHidden.toggle()
         widthSlider.isHidden.toggle()
-        heightValue.isHidden.toggle()
         heightSlider.isHidden.toggle()
         
     }
@@ -105,9 +105,14 @@ class ViewController: UIViewController, ARSCNViewDelegate {
     //MARK: - ○ボタン ノードの発生
     @IBAction func circleButton(_ sender: UIButton) {
         
-        createImage()
+        if let camera = self.sceneView.pointOfView {
+            let offset = SCNVector3(x: 0, y: 0.25, z: -2)
+            position = camera.convertPosition(offset, to: nil)
+        }
+        
         setImageToScene()
         
+        isFirst = false
     }
     
     //MARK: - xボタン 移動倍率制御
@@ -144,9 +149,16 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         heightValue.text = "Height: \(heightString)cm"
     }
     
-    
-    //MARK: - ノードを作成
-    func createImage() {
+    //MARK: - 写真を設置
+    private func setImageToScene() {
+        if !isFirst {
+            
+            // ２回目以降の設置は、前回作成のnode削除
+            photoNodes.last?.removeFromParentNode()
+            photoNodes[photoNodes.count - 2].removeFromParentNode()
+            photoNodes = photoNodesBU // BuckUp
+
+        }
         
         // create plane geometry
         let width = widthSlider.value
@@ -159,34 +171,16 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         plane.materials = [material]
         
         // create node and node2
+        let node = SCNNode()
         node.geometry = plane
-        node2 = node.clone()
+        let node2 = node.clone()
         
-        //　初期のplaneNodeの向きがカメラに向くように設定
+        // カメラの位置からノードの角度と位置を調整する。
         if let camera = self.sceneView.pointOfView {
             node.eulerAngles.y = camera.eulerAngles.y // カメラのy軸のオイラー角と同じにする
             node2.eulerAngles.y = camera.eulerAngles.y + .pi // node2は裏側としてレンダリングする
-            
-            // set position
-            let offset = SCNVector3(x: 0, y: 0.5, z: -2)
-            position = camera.convertPosition(offset, to: nil)
-            
+            print("cameraAngles: \(camera.eulerAngles.y)")
         }
-        
-    }
-    
-    //MARK: - 写真を設置
-    private func setImageToScene() {
-        if !isFirst {
-            
-            // ２回目以降の設置は、前回作成のnode削除
-            photoNodes.last?.removeFromParentNode()
-            photoNodes[photoNodes.count - 2].removeFromParentNode()
-            photoNodes = photoNodesBU // BuckUp
-
-        }
-        isFirst = false
-
         print("position is \(position)")
         node.position = position
         node2.position = position
@@ -198,6 +192,8 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         // add node to Array
         photoNodes.append(node)
         photoNodes.append(node2)
+        
+        createAxes() // 軸をレンダー
     }
 }
 
@@ -205,8 +201,59 @@ class ViewController: UIViewController, ARSCNViewDelegate {
 //MARK: - Presenter
 extension ViewController: UIImagePickerControllerDelegate, UINavigationControllerDelegate {
     
-    //MARK: - ノードの移動
-    func nodeMove() {
+    //MARK: - 軸ノードを作成
+    func createAxes() {
+        
+        if !isFirst {
+            if !axesNodes.isEmpty {
+                for axes in axesNodes {
+                    axes.removeFromParentNode()
+                }
+            }
+            axesNodes = [SCNNode]() // initialize property
+        }
+        
+        // create line geometry
+//        let scnBox = SCNBox(width: 0.005, height: 0.5, length: 0.005, chamferRadius: 0.01)
+        let lineX = SCNBox(width: 0.005, height: 0.5, length: 0.005, chamferRadius: 0.01)
+        let lineY = SCNBox(width: 0.005, height: 0.5, length: 0.005, chamferRadius: 0.01)
+        let lineZ = SCNBox(width: 0.005, height: 0.5, length: 0.005, chamferRadius: 0.01)
+//        let (lineX, lineY, lineZ) = (scnBox, scnBox, scnBox)
+        
+        // set line material
+        let materialX = SCNMaterial()
+        let materialY = SCNMaterial()
+        let materialZ = SCNMaterial()
+        materialX.diffuse.contents = UIColor.red
+        materialY.diffuse.contents = UIColor.green
+        materialZ.diffuse.contents = UIColor.blue
+        lineX.materials = [materialX]
+        lineY.materials = [materialY]
+        lineZ.materials = [materialZ]
+        
+        // create nodeX, nodeY and nodeZ
+        let nodeX = SCNNode(geometry: lineX)
+        let nodeY = SCNNode(geometry: lineY)
+        let nodeZ = SCNNode(geometry: lineZ)
+        
+        // set position
+        nodeX.position = SCNVector3(position.x + Float(lineX.height)/2, position.y, position.z)
+        nodeY.position = SCNVector3(position.x, position.y + Float(lineY.height)/2, position.z)
+        nodeZ.position = SCNVector3(position.x, position.y, position.z + Float(lineZ.height)/2)
+        
+        // set angles
+        nodeX.eulerAngles.z = .pi/2
+        nodeZ.eulerAngles.x = .pi/2
+        
+        // render sceneView
+        sceneView.scene.rootNode.addChildNode(nodeX)
+        sceneView.scene.rootNode.addChildNode(nodeY)
+        sceneView.scene.rootNode.addChildNode(nodeZ)
+        
+        // add node to Array
+        axesNodes.append(nodeX)
+        axesNodes.append(nodeY)
+        axesNodes.append(nodeZ)
         
     }
     

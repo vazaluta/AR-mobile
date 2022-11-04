@@ -8,7 +8,6 @@
 
 /* Begin PBXBuildFile section */
 		1C678BDAD13D8A733744E28F /* Pods_AR_mobile.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 053ABF65C4A183D4518EEB78 /* Pods_AR_mobile.framework */; };
-		F76E55C7291349850070611F /* BalloonView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F76E55C6291349850070611F /* BalloonView.swift */; };
 		F7708BDF28F8567F0017E2C8 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7708BDE28F8567F0017E2C8 /* ViewController.swift */; };
 		F796C47E28EDDB1800A33470 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F796C47D28EDDB1800A33470 /* AppDelegate.swift */; };
 		F796C48028EDDB1800A33470 /* art.scnassets in Resources */ = {isa = PBXBuildFile; fileRef = F796C47F28EDDB1800A33470 /* art.scnassets */; };
@@ -21,7 +20,6 @@
 		053ABF65C4A183D4518EEB78 /* Pods_AR_mobile.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_AR_mobile.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		119483FB367BE09B27CC0A51 /* Pods-AR-mobile.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-AR-mobile.release.xcconfig"; path = "Target Support Files/Pods-AR-mobile/Pods-AR-mobile.release.xcconfig"; sourceTree = "<group>"; };
 		751533815D3FB7BC74D6C3BF /* Pods-AR-mobile.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-AR-mobile.debug.xcconfig"; path = "Target Support Files/Pods-AR-mobile/Pods-AR-mobile.debug.xcconfig"; sourceTree = "<group>"; };
-		F76E55C6291349850070611F /* BalloonView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BalloonView.swift; sourceTree = "<group>"; };
 		F7708BDE28F8567F0017E2C8 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
 		F796C47A28EDDB1800A33470 /* AR-mobile.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "AR-mobile.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		F796C47D28EDDB1800A33470 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -83,7 +81,6 @@
 			children = (
 				F796C47D28EDDB1800A33470 /* AppDelegate.swift */,
 				F7708BDE28F8567F0017E2C8 /* ViewController.swift */,
-				F76E55C6291349850070611F /* BalloonView.swift */,
 				F796C47F28EDDB1800A33470 /* art.scnassets */,
 				F796C48328EDDB1800A33470 /* Main.storyboard */,
 				F796C48628EDDB1A00A33470 /* Assets.xcassets */,
@@ -208,7 +205,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				F76E55C7291349850070611F /* BalloonView.swift in Sources */,
 				F7708BDF28F8567F0017E2C8 /* ViewController.swift in Sources */,
 				F796C47E28EDDB1800A33470 /* AppDelegate.swift in Sources */,
 			);
