@@ -82,7 +82,7 @@ class ViewController: UIViewController, ARSCNViewDelegate {
     }
     
     @IBAction func moveToLeft(_ sender: UIButton) {
-        
+
         position = SCNVector3(position.x - 0.05 * number, position.y, position.z)
         setImageToScene()
 
@@ -175,13 +175,13 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         node.geometry = plane
         let node2 = node.clone()
         
-        // カメラの位置からノードの角度と位置を調整する。
+        // カメラの位置からノードの角度を調整する。
         if let camera = self.sceneView.pointOfView {
-            node.eulerAngles.y = camera.eulerAngles.y // カメラのy軸のオイラー角と同じにする
-            node2.eulerAngles.y = camera.eulerAngles.y + .pi // node2は裏側としてレンダリングする
-            print("cameraAngles: \(camera.eulerAngles.y)")
+            let cameraAngleY = camera.eulerAngles.y
+            node.eulerAngles.y = cameraAngleY // カメラのy軸のオイラー角と同じにする
+            node2.eulerAngles.y = cameraAngleY + .pi // node2は裏側としてレンダリングする
         }
-        print("position is \(position)")
+        
         node.position = position
         node2.position = position
         
@@ -214,11 +214,9 @@ extension ViewController: UIImagePickerControllerDelegate, UINavigationControlle
         }
         
         // create line geometry
-//        let scnBox = SCNBox(width: 0.005, height: 0.5, length: 0.005, chamferRadius: 0.01)
-        let lineX = SCNBox(width: 0.005, height: 0.5, length: 0.005, chamferRadius: 0.01)
-        let lineY = SCNBox(width: 0.005, height: 0.5, length: 0.005, chamferRadius: 0.01)
-        let lineZ = SCNBox(width: 0.005, height: 0.5, length: 0.005, chamferRadius: 0.01)
-//        let (lineX, lineY, lineZ) = (scnBox, scnBox, scnBox)
+        let lineX = SCNCylinder(radius: 0.002, height: 0.5)
+        let lineY = SCNCylinder(radius: 0.002, height: 0.5)
+        let lineZ = SCNCylinder(radius: 0.002, height: 0.5)
         
         // set line material
         let materialX = SCNMaterial()
@@ -260,6 +258,7 @@ extension ViewController: UIImagePickerControllerDelegate, UINavigationControlle
     //MARK: - ノードの回転
     func nodeRotate() {
         timer = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { (Timer) in
+            
             for photo in self.photoNodes {
                 photo.eulerAngles.y += .pi/180
             }
@@ -269,11 +268,13 @@ extension ViewController: UIImagePickerControllerDelegate, UINavigationControlle
     
     //MARK: - 写真を選択
     @IBAction func photoButtonTapped(_ sender: Any) {
+        
         showUIImagePicker()
     }
     
     //MARK: -選んだ写真をUIImagePickerControllerとして作り、ViewControllerにpresentする。
     private func showUIImagePicker() {
+        
         if UIImagePickerController.isSourceTypeAvailable(.photoLibrary) {
             let pickerView = UIImagePickerController()
             pickerView.sourceType = .photoLibrary
@@ -292,10 +293,9 @@ extension ViewController: UIImagePickerControllerDelegate, UINavigationControlle
     //MARK: - 画像選択処理
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
         if let image = info[UIImagePickerController.InfoKey.originalImage] as? UIImage {
+            
             cropUIImagePicker(pickerImage: image, with: picker) // trimming image
-            
             isFirst = true // first flag
-            
             photoNodesBU = photoNodes // Update to buckUp
         }
         picker.dismiss(animated: true, completion: nil) // UIimageへのダウンキャストが失敗した時
@@ -324,12 +324,9 @@ extension ViewController: CropViewControllerDelegate {
     private func cropUIImagePicker(pickerImage: UIImage, with picker: UIImagePickerController) {
         //CropViewControllerを初期化する。pickerImage(処理する画像)を指定する。
         let cropController = CropViewController(croppingStyle: .default, image: pickerImage)
-        
         cropController.delegate = self
-        
         //AspectRatioのサイズをimageViewのサイズに合わせる。
         cropController.customAspectRatio = sceneView.frame.size
-        
         //pickerを閉じたら、cropControllerを表示する。
         picker.dismiss(animated: true) {
             
