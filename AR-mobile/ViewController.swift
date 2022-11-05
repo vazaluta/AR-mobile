@@ -199,8 +199,8 @@ class ViewController: UIViewController, ARSCNViewDelegate {
 
 
 //MARK: - Presenter
-extension ViewController: UIImagePickerControllerDelegate, UINavigationControllerDelegate {
-    
+//MARK: - ノードの処理
+extension ViewController {
     //MARK: - 軸ノードを作成
     func createAxes() {
         
@@ -263,8 +263,25 @@ extension ViewController: UIImagePickerControllerDelegate, UINavigationControlle
                 photo.eulerAngles.y += .pi/180
             }
         }
-        
     }
+    
+    //MARK: - ノードの全削除
+    @IBAction func trachButton(_ sender: UIBarButtonItem) {
+
+        if !photoNodes.isEmpty {
+            for photo in photoNodes {
+                photo.removeFromParentNode()
+            }
+        }
+        // initialize property
+        photoNodes = [SCNNode]()
+        photoNodesBU = [SCNNode]()
+        isFirst = true
+    }
+    
+}
+
+extension ViewController: UIImagePickerControllerDelegate, UINavigationControllerDelegate {
     
     //MARK: - 写真を選択
     @IBAction func photoButtonTapped(_ sender: Any) {
@@ -299,20 +316,6 @@ extension ViewController: UIImagePickerControllerDelegate, UINavigationControlle
             photoNodesBU = photoNodes // Update to buckUp
         }
         picker.dismiss(animated: true, completion: nil) // UIimageへのダウンキャストが失敗した時
-    }
-    
-    //MARK: - ノードの全削除
-    @IBAction func trachButton(_ sender: UIBarButtonItem) {
-
-        if !photoNodes.isEmpty {
-            for photo in photoNodes {
-                photo.removeFromParentNode()
-            }
-        }
-        // initialize property
-        photoNodes = [SCNNode]()
-        photoNodesBU = [SCNNode]()
-        isFirst = true
     }
     
 }
