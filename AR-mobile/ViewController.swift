@@ -273,9 +273,15 @@ extension ViewController {
                 photo.removeFromParentNode()
             }
         }
+        if !axesNodes.isEmpty {
+            for axes in axesNodes {
+                axes.removeFromParentNode()
+            }
+        }
         // initialize property
         photoNodes = [SCNNode]()
         photoNodesBU = [SCNNode]()
+        axesNodes = [SCNNode]()
         isFirst = true
     }
     

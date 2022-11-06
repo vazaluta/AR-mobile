@@ -9,11 +9,11 @@
 /* Begin PBXBuildFile section */
 		1C678BDAD13D8A733744E28F /* Pods_AR_mobile.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 053ABF65C4A183D4518EEB78 /* Pods_AR_mobile.framework */; };
 		F7708BDF28F8567F0017E2C8 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7708BDE28F8567F0017E2C8 /* ViewController.swift */; };
+		F78C69C22917759B00CFA866 /* art.scnassets in Resources */ = {isa = PBXBuildFile; fileRef = F796C47F28EDDB1800A33470 /* art.scnassets */; };
+		F78C69C32917759B00CFA866 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = F796C48328EDDB1800A33470 /* Main.storyboard */; };
+		F78C69C42917759B00CFA866 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F796C48628EDDB1A00A33470 /* Assets.xcassets */; };
+		F78C69C52917759B00CFA866 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = F796C48828EDDB1A00A33470 /* LaunchScreen.storyboard */; };
 		F796C47E28EDDB1800A33470 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F796C47D28EDDB1800A33470 /* AppDelegate.swift */; };
-		F796C48028EDDB1800A33470 /* art.scnassets in Resources */ = {isa = PBXBuildFile; fileRef = F796C47F28EDDB1800A33470 /* art.scnassets */; };
-		F796C48528EDDB1800A33470 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = F796C48328EDDB1800A33470 /* Main.storyboard */; };
-		F796C48728EDDB1A00A33470 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F796C48628EDDB1A00A33470 /* Assets.xcassets */; };
-		F796C48A28EDDB1A00A33470 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = F796C48828EDDB1A00A33470 /* LaunchScreen.storyboard */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -149,10 +149,10 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				F796C48028EDDB1800A33470 /* art.scnassets in Resources */,
-				F796C48A28EDDB1A00A33470 /* LaunchScreen.storyboard in Resources */,
-				F796C48728EDDB1A00A33470 /* Assets.xcassets in Resources */,
-				F796C48528EDDB1800A33470 /* Main.storyboard in Resources */,
+				F78C69C22917759B00CFA866 /* art.scnassets in Resources */,
+				F78C69C32917759B00CFA866 /* Main.storyboard in Resources */,
+				F78C69C42917759B00CFA866 /* Assets.xcassets in Resources */,
+				F78C69C52917759B00CFA866 /* LaunchScreen.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -356,7 +356,7 @@
 				CURRENT_PROJECT_VERSION = 2;
 				DEVELOPMENT_TEAM = A9RQBGGY4U;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_NSCameraUsageDescription = "";
+				INFOPLIST_KEY_NSCameraUsageDescription = "カメラを使用することで、モビールをあなたの部屋に映し出すことができます。";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UIMainStoryboardFile = Main;
@@ -391,7 +391,7 @@
 				CURRENT_PROJECT_VERSION = 2;
 				DEVELOPMENT_TEAM = A9RQBGGY4U;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_NSCameraUsageDescription = "";
+				INFOPLIST_KEY_NSCameraUsageDescription = "カメラを使用することで、モビールをあなたの部屋に映し出すことができます。";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UIMainStoryboardFile = Main;
